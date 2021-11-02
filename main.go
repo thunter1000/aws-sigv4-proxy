@@ -104,6 +104,12 @@ func main() {
 		}
 	})
 
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
 	log.WithFields(log.Fields{"StripHeaders": *strip}).Infof("Stripping headers %s", *strip)
 	log.WithFields(log.Fields{"port": *port}).Infof("Listening on %s", *port)
 
@@ -111,7 +117,7 @@ func main() {
 		http.ListenAndServe(*port, &handler.Handler{
 			ProxyClient: &handler.ProxyClient{
 				Signer:              signer,
-				Client:              http.DefaultClient,
+				Client:              client,
 				StripRequestHeaders: *strip,
 				SigningNameOverride: *signingNameOverride,
 				HostOverride:        *hostOverride,
