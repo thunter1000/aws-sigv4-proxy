@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -42,6 +43,7 @@ type ProxyClient struct {
 	HostOverride        string
 	RegionOverride      string
 	LogFailedRequest    bool
+	ProxyServer         string
 }
 
 func (p *ProxyClient) sign(req *http.Request, service *endpoints.ResolvedEndpoint) error {
@@ -138,6 +140,17 @@ func (p *ProxyClient) Do(req *http.Request) (*http.Response, error) {
 			log.WithError(err).Error("unable to dump request")
 		}
 		log.WithField("request", string(proxyReqDump)).Debug("proxying request")
+	}
+
+	if (p.ProxyServer != "") {
+		proxyServerUrl, err := url.Parse(p.ProxyServer)
+
+		if (err != nil) {
+			log.Fatal(err)
+		}
+
+		proxyReq.URL.Host = proxyServerUrl.Host
+		proxyReq.URL.Scheme = proxyServerUrl.Scheme
 	}
 
 	resp, err := p.Client.Do(proxyReq)

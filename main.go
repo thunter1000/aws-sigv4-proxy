@@ -45,6 +45,7 @@ var (
 	hostOverride           = kingpin.Flag("host", "Host to proxy to").String()
 	regionOverride         = kingpin.Flag("region", "AWS region to sign for").String()
 	disableSSLVerification = kingpin.Flag("no-verify-ssl", "Disable peer SSL certificate validation").Bool()
+	proxyServer            = kingpin.Flag("proxy-server", "Proxy server address http://127.0.0.1:8080").String()
 )
 
 type awsLoggerAdapter struct {
@@ -117,6 +118,7 @@ func main() {
 				HostOverride:        *hostOverride,
 				RegionOverride:      *regionOverride,
 				LogFailedRequest:    *logFailedResponse,
+				ProxyServer:         *proxyServer,
 			},
 		}),
 	)
